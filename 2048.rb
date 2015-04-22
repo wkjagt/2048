@@ -22,11 +22,7 @@ class Board
     system "clear" or system "cls"
 
     puts HOR_LINE
-    rows.each do |r|
-      print EMPTY_COL + "\n|"
-      r.each { |(s, v)| print format_nr_square(v) + "|" }
-      puts "\n" + EMPTY_COL + "\n" + HOR_LINE
-    end
+    rows.each { |row| draw_row(row) }
     puts "\nMoves: #{@history.size - 1}\nScore: #{@score}"
   end
 
@@ -43,11 +39,17 @@ class Board
 
   private
 
+  def draw_row(row)
+    print "#{EMPTY_COL}\n|"
+    print row.map { |(_, val)| format_square(val) + "|" }.join
+    print "\n#{EMPTY_COL}\n#{HOR_LINE}\n"
+  end
+
   def add_new
     @squares[random_empty] = [2, 4].sample(1).first
   end
 
-  def format_nr_square(value)
+  def format_square(value)
     return " " * 6 unless value
 
     log = Math.log(value, 2).to_i
