@@ -1,9 +1,7 @@
 require 'io/console'
 
-class String
-  COLORS = {red:[31],green:[32],brown:[33],magenta:[35],cyan:[36],bold:[1,22] }.each do |c,s|
-    define_method(c) { "\033[#{s[0]}m#{self}\033[#{s[1].to_i}m" }
-  end
+String::COLORS = {red:[31],green:[32],brown:[33],magenta:[35],cyan:[36],bold:[1,22] }.each do |c,s|
+  define_method(c) { "\033[#{s[0]}m#{self}\033[#{s[1].to_i}m" }
 end
 
 class Board
