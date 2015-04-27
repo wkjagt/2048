@@ -1,8 +1,14 @@
 require 'io/console'
 
+class String
+  COLORS = {red:[31],green:[32],brown:[33],magenta:[35],cyan:[36],bold:[1,22] }.each do |c,s|
+    define_method(c) { "\033[#{s[0]}m#{self}\033[#{s[1].to_i}m" }
+  end
+end
+
 class Board
   X, Y = 0, 1
-  COLORS = [:red, :green, :brown, :magenta, :cyan]
+  COLORS = String::COLORS.keys[0..-2]
   HOR_LINE = "-" * 29
   EMPTY_COL = "|      " * 4 + "|"
 
@@ -62,7 +68,7 @@ class Board
   end
 
   def move_line(line, dir)
-    line.select { |k, v| v }.each_key { |location| slide_square(location, dir) }
+    line.select { |_,v| v }.each_key { |location| slide_square(location, dir) }
   end
 
   def slide_square(loc, dir)
@@ -109,15 +115,6 @@ Game = Struct.new(:board) do
       KEYS[key] == :exit ? exit : board.move(KEYS[key]).draw
     end
   end
-end
-
-class String
-  def red;     "\033[31m#{self}\033[0m" end
-  def green;   "\033[32m#{self}\033[0m" end
-  def brown;   "\033[33m#{self}\033[0m" end
-  def magenta; "\033[35m#{self}\033[0m" end
-  def cyan;    "\033[36m#{self}\033[0m" end
-  def bold;    "\033[1m#{self}\033[22m" end
 end
 
 Game.new(Board.new).run
