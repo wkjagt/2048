@@ -48,9 +48,9 @@ class Board
   end
 
   def format_square(value)
-    log = Math.log(value, 2).to_i
-    f = value.to_s.center(6).send(COLORS[-1 + log % COLORS.length])
-    log <= COLORS.length ? f : f.bold
+    color_index = Math.log(value, 2).to_i
+    f = value.to_s.center(6).send(COLORS[-1 + color_index % COLORS.length])
+    color_index <= COLORS.length ? f : f.bold
   end
 
   def slide_square(loc, dir)
