@@ -84,6 +84,6 @@ Game = Struct.new(:board) do
       ((KEYS[key] == :exit ? exit : board.move(KEYS[key])) if KEYS.key?(key))
     end
   end
-end.new(Board.new).run
+end
 
 Game.new(Board.new).run
