@@ -31,8 +31,7 @@ class Board
     @move_order[dir].call.each do |line|
       line.select { |_,v| v }.each_key { |location| slide_square(location, dir) }
     end
-    add_new
-    @history << @squares.dup unless @history.last == @squares
+    add_new && @history << @squares.dup unless @history.last == @squares
     draw
   end
 
