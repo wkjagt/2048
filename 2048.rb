@@ -44,7 +44,7 @@ class Board
   end
 
   def add_new
-    @squares[empty_square] = [2, 4].sample(1).first
+    @squares[empty_square] = [2, 4].sample
   end
 
   def format_square(value)
