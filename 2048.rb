@@ -12,10 +12,8 @@ class Board
   def initialize
     @score = 0
     @squares = (0..15).map { |n| [[n % 4, n / 4], nil] }.to_h
-    @move_order = {
-      [0,-1] => -> { lines(Y) }, [0,+1] => -> { lines(Y).reverse }, # rows
-      [-1,0] => -> { lines(X) }, [+1,0] => -> { lines(X).reverse }, # columns
-    }
+    @move_order = { [0,-1] => -> { lines(Y) }, [0,+1] => -> { lines(Y).reverse }, # rows
+                    [-1,0] => -> { lines(X) }, [+1,0] => -> { lines(X).reverse }} # columns
     2.times { add_new }
     @history = [@squares.dup]
     draw
@@ -23,44 +21,36 @@ class Board
 
   def draw
     system "clear" or system "cls"
-    puts HOR_LINE
-    lines(Y).each { |row| draw_row(row) }
-    puts "\nMoves: #{@history.size - 1}\nScore: #{@score}"
+    [ HOR_LINE,
+      lines(Y).map { |row| format_row(row) }.join,
+      "\nMoves: #{@history.size - 1}\nScore: #{@score}" ].each{ |l| puts l }
   end
 
   def move(dir)
     @doubled = []
-    move_lines(@move_order[dir].call, dir)
-
-    unless @history.last == @squares
-      add_new
-      @history << @squares.dup
+    @move_order[dir].call.each do |line|
+      line.select { |_,v| v }.each_key { |location| slide_square(location, dir) }
     end
+    add_new && @history << @squares.dup unless @history.last == @squares
     draw
   end
 
   private
 
-  def draw_row(row)
-    print "#{EMPTY_COL}\n|",
-          row.map { |(_, val)| (val ? format_square(val) : " " * 6) + "|" }.join,
-          "\n#{EMPTY_COL}\n#{HOR_LINE}\n"
+  def format_row(row)
+    "#{EMPTY_COL}\n|" +
+    row.map { |(_, val)| (val ? format_square(val) : " " * 6) + "|" }.join +
+    "\n#{EMPTY_COL}\n#{HOR_LINE}\n"
   end
 
   def add_new
-    @squares[random_empty] = [2, 4].sample(1).first
+    @squares[empty_square] = [2, 4].sample(1).first
   end
 
   def format_square(value)
     log = Math.log(value, 2).to_i
     f = value.to_s.center(6).send(COLORS[-1 + log % COLORS.length])
     log <= COLORS.length ? f : f.bold
-  end
-
-  def move_lines(lines, dir)
-    lines.each do |line|
-      line.select { |_,v| v }.each_key { |location| slide_square(location, dir) }
-    end
   end
 
   def slide_square(loc, dir)
@@ -73,11 +63,11 @@ class Board
     elsif @squares[neighbour] == value && !@doubled.include?(neighbour)
       @squares[loc], @squares[neighbour] = nil, value * 2
       @doubled << neighbour
-      @score += value * 2
+      @score += @squares[neighbour]
     end
   end
 
-  def random_empty
+  def empty_square
     @squares.select{ |_, v| v.nil? }.to_a.sample(1).to_h.keys.first
   end
 
@@ -91,9 +81,9 @@ Game = Struct.new(:board) do
 
   def run
     while key = STDIN.getch
-      (KEYS[key] == :exit ? exit : board.move(KEYS[key])) if KEYS.key?(key)
+      ((KEYS[key] == :exit ? exit : board.move(KEYS[key])) if KEYS.key?(key))
     end
   end
-end
+end.new(Board.new).run
 
 Game.new(Board.new).run
