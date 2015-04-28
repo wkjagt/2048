@@ -62,11 +62,9 @@ class Board
   end
 
   def move_lines(lines, dir)
-    lines.each { |line| move_line(line, dir) }
-  end
-
-  def move_line(line, dir)
-    line.select { |_,v| v }.each_key { |location| slide_square(location, dir) }
+    lines.each do |line|
+      line.select { |_,v| v }.each_key { |location| slide_square(location, dir) }
+    end
   end
 
   def slide_square(loc, dir)
