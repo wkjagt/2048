@@ -7,8 +7,7 @@ end
 class Board
   X, Y = 0, 1
   COLORS = String::COLORS.keys[0..-2]
-  HOR_LINE = "-" * 29
-  EMPTY_COL = "|      " * 4 + "|"
+  HOR_LINE, EMPTY_COL = "-" * 29, "|      " * 4 + "|"
 
   def initialize
     @score = 0
@@ -65,8 +64,7 @@ class Board
   end
 
   def slide_square(loc, dir)
-    value = @squares[loc]
-    neighbour = [loc[X] + dir[X],loc[Y] + dir[Y]]
+    value, neighbour = @squares[loc], [loc[X] + dir[X],loc[Y] + dir[Y]]
     return unless @squares.key? neighbour
 
     if @squares[neighbour].nil?
@@ -89,8 +87,7 @@ class Board
 end
 
 Game = Struct.new(:board) do
-  KEYS = { "A" => [0,-1], "D" => [-1,0], "B" => [0,+1], "C" => [+1,0],
-           "\u0003" => :exit }
+  KEYS = { "A" => [0,-1], "D" => [-1,0], "B" => [0,+1], "C" => [+1,0], "\u0003" => :exit }
 
   def run
     while key = STDIN.getch
