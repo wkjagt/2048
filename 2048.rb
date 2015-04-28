@@ -14,19 +14,18 @@ class Board
     @score = 0
     @squares = (0..15).map { |n| [[n % 4, n / 4], nil] }.to_h
     @move_order = {
-      [0,-1] => -> { rows }, [0,+1] => -> { rows.reverse },
-      [-1,0] => -> { cols }, [+1,0] => -> { cols.reverse },
+      [0,-1] => -> { lines(Y) }, [0,+1] => -> { lines(Y).reverse }, # rows
+      [-1,0] => -> { lines(X) }, [+1,0] => -> { lines(X).reverse }, # columns
     }
-
     2.times { add_new }
     @history = [@squares.dup]
+    draw
   end
 
   def draw
     system "clear" or system "cls"
-
     puts HOR_LINE
-    rows.each { |row| draw_row(row) }
+    lines(Y).each { |row| draw_row(row) }
     puts "\nMoves: #{@history.size - 1}\nScore: #{@score}"
   end
 
@@ -38,15 +37,15 @@ class Board
       add_new
       @history << @squares.dup
     end
-    self
+    draw
   end
 
   private
 
   def draw_row(row)
-    print "#{EMPTY_COL}\n|"
-    print row.map { |(_, val)| format_square(val) + "|" }.join
-    print "\n#{EMPTY_COL}\n#{HOR_LINE}\n"
+    print "#{EMPTY_COL}\n|",
+          row.map { |(_, val)| (val ? format_square(val) : " " * 6) + "|" }.join,
+          "\n#{EMPTY_COL}\n#{HOR_LINE}\n"
   end
 
   def add_new
@@ -54,8 +53,6 @@ class Board
   end
 
   def format_square(value)
-    return " " * 6 unless value
-
     log = Math.log(value, 2).to_i
     f = value.to_s.center(6).send(COLORS[-1 + log % COLORS.length])
     log <= COLORS.length ? f : f.bold
@@ -89,14 +86,6 @@ class Board
   def lines(dir)
     (0..3).map{ |i| @squares.select { |s| s[dir] == i } }
   end
-
-  def rows
-    lines(Y)
-  end
-
-  def cols
-    lines(X)
-  end
 end
 
 Game = Struct.new(:board) do
@@ -105,10 +94,8 @@ Game = Struct.new(:board) do
            "\u0003" => :exit }
 
   def run
-    board.draw
     while key = STDIN.getch
-      next unless KEYS.key?(key)
-      KEYS[key] == :exit ? exit : board.move(KEYS[key]).draw
+      (KEYS[key] == :exit ? exit : board.move(KEYS[key])) if KEYS.key?(key)
     end
   end
 end
